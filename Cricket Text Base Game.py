@@ -30,3 +30,36 @@ class CricketGame:
         self.choose_team_strength()
         self.set_batting_order()
         self.toss()
+
+    def choose_team_strength(self): #To choose your team strength
+        while True:
+            print("\nChoose your team's strength:") 
+            print("1. Batting")
+            print("2. Bowling")
+            choice = input("Enter 1 or 2: ").strip() # Takes the input from the user
+            if choice in ['1', '2']:
+                self.player_strength = 'batting' if choice == '1' else 'bowling'
+                break # Breaks the loop if the input is valid
+            print("Invalid input, please choose 1 or 2.")
+        print(f"Your team is known for its {self.player_strength}.")
+
+    def set_batting_order(self): #TO choose you batsmen only for top 3 though because i
+        print("\nSet your team's batting order. Choose your top 3 batsmen:")
+        for i in range(1, 4): # Loop to take the input from the user
+            player = input(f"Enter name of Batsman {i}: ").strip()
+            self.player_batting_order.append(player) # adds the player to the batting order which is a list above
+        self.player_batting_order += [f"Player {i}" for i in range(4, 12)]
+        print(f"Your batting order is set as: {', '.join(self.player_batting_order[:3])}, and others.")
+        self.player_scores = {player: 0 for player in self.player_batting_order} # Sets the score of each player to 0
+        self.opponent_scores = {player: 0 for player in self.opponent_batting_order} # Sets the score of each player to 0 in the oother batting team
+
+    def toss(self): #For the coin toss to decide who is going to bat or bowl fuirst
+        print("\nTossing the coin...")
+        toss_outcome = random.choice(['win', 'lose'])
+        if toss_outcome == 'win':
+            while True:
+                choice = input("You won the toss! Do you want to bat or bowl first? (bat/bowl): ").lower().strip()
+                if choice in ['bat', 'bowl']:
+                    self.player_batting = True if choice == 'bat' else False
+                    break
+                print("Invalid input, please choose 'bat' or 'bowl'.")
