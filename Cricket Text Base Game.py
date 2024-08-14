@@ -180,6 +180,91 @@ class CricketGame:
             outcome = self.get_bowling_outcome(field)
             self.process_bowling_outcome(outcome, field) 
 
+    def get_bowling_outcome(self, field):
+        opponent_shot = random.choice(['defend', 'drive', 'pull', 'loft'])
+        ball_type = random.choice(['fast', 'spin', 'bouncer', 'yorker'])
+
+        if (ball_type == 'yorker' and opponent_shot == 'pull') or \
+        (ball_type == 'bouncer' and opponent_shot == 'drive') or \
+        (ball_type == 'spin' and opponent_shot == 'pull') or \
+        (ball_type == 'fast' and opponent_shot == 'loft'):
+            return 'wicket' 
+        #Same thing as before but for the opponent this time
+        is_edge_case = random.random() < 0.05  
+        if is_edge_case:
+            return random.choice(['wicket', 'no-ball', 'wide'])
+
+        weights = self.get_dynamic_weights(opponent_shot, batting=False)
+        return random.choices(['runs', 'wicket', 'dot', 'boundary', 'six'], weights=weights)[0]
+
+    def process_batting_outcome(self, outcome, shot): #For the outcome of the ball
+        current_batsman = self.player_batting_order[self.player_wickets]
+        if outcome == 'runs': #Commenary / statements for what you got from your shot
+            runs = random.randint(1, 3) if shot == 'loft' else random.randint(1, 4)
+            self.player_team_score += runs
+            self.player_scores[current_batsman] += runs
+            print(f"You scored {runs} runs!")
+            self.commentary.append(f"{current_batsman} scores {runs} runs.")
+        elif outcome == 'boundary':
+            self.player_team_score += 4
+            self.player_scores[current_batsman] += 4
+            print("You hit a boundary!")
+            self.commentary.append(f"{current_batsman} hits a boundary!")
+        elif outcome == 'six':
+            self.player_team_score += 6
+            self.player_scores[current_batsman] += 6
+            print("It's a six!")
+            self.commentary.append(f"{current_batsman} hits a six!")
+        elif outcome == 'wicket':
+            self.player_wickets += 1
+            print(f"Oh no! {current_batsman} got out!")
+            self.commentary.append(f"{current_batsman} is out!")
+        elif outcome == 'no-ball':
+            self.player_team_score += 1
+            print("No-ball! Free hit!")
+            self.commentary.append(f"No-ball by the bowler!")
+        elif outcome == 'wide':
+            self.player_team_score += 1
+            print("Wide ball!")
+            self.commentary.append(f"Wide ball by the bowler!")
+        else:
+            print("No runs scored.")
+            self.commentary.append(f"{current_batsman} plays a dot ball.")
+
+    def process_bowling_outcome(self, outcome, field):
+        opponent = self.opponent_batting_order[self.opponent_wickets]
+        if outcome == 'runs': #Same as above but while bowling
+            runs = random.randint(1, 3) if field == 'aggressive' else random.randint(1, 6)
+            self.opponent_team_score += runs
+            self.opponent_scores[opponent] += runs
+            print(f"Opponent scored {runs} runs.")
+            self.commentary.append(f"{opponent} scores {runs} runs.")
+        elif outcome == 'boundary':
+            self.opponent_team_score += 4
+            self.opponent_scores[opponent] += 4
+            print("Opponent hit a boundary!")
+            self.commentary.append(f"{opponent} hits a boundary!")
+        elif outcome == 'six':
+            self.opponent_team_score += 6
+            self.opponent_scores[opponent] += 6
+            print("Opponent hits a six!")
+            self.commentary.append(f"{opponent} hits a six!")
+        elif outcome == 'wicket':
+            self.opponent_wickets += 1
+            print(f"Great! You took a wicket!")
+            self.commentary.append(f"Bowler takes the wicket of {opponent}!")
+        elif outcome == 'no-ball':
+            self.opponent_team_score += 1
+            print("No-ball! Free hit!")
+            self.commentary.append(f"No-ball by the bowler!")
+        elif outcome == 'wide':
+            self.opponent_team_score += 1
+            print("Wide ball!")
+            self.commentary.append(f"Wide ball by the bowler!")
+        else:
+            print("No runs conceded.")
+            self.commentary.append(f"{opponent} plays a dot ball.")
+
 
     #def play(self):
         #self.start_game()
