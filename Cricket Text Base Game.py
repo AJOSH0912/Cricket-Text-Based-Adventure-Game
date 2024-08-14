@@ -124,6 +124,63 @@ class CricketGame:
         print(f"\nEnd of over {self.overs_played}/{self.max_overs}.")
         print(f"Score: {'Your Team' if batting else 'Opponent'} {self.player_team_score if batting else self.opponent_team_score}/{self.player_wickets if batting else self.opponent_wickets}")
 
+        def simulate_batting_over(self): #Simulates the batting over
+            for _ in range(6):
+                ball_type = random.choice(['fast', 'spin', 'bouncer', 'yorker']) #Randomly chooses the ball type
+                print(f"\nBall is a {ball_type}.") 
+                while True:
+                    shot = input("Choose your shot (defend, drive, pull, loft): ").lower().strip()
+                    if shot in ['defend', 'drive', 'pull', 'loft']:
+                        break
+                print("Invalid input, please choose 'defend', 'drive', 'pull', or 'loft'.")
+            outcome = self.get_batting_outcome(ball_type, shot) #Gets the outcome of the ball
+            self.process_batting_outcome(outcome, shot) 
+
+    def get_dynamic_weights(self, shot, batting=True):
+        if batting:
+            if self.innings_phase == "Powerplay":
+                return [50, 10, 10, 20, 10] if shot == 'drive' else \
+                    [45, 15, 10, 15, 15] if shot == 'pull' else \
+                    [40, 5, 20, 25, 10] if shot == 'loft' else \
+                    [30, 5, 45, 15, 5]
+            else:
+                return [40, 10, 10, 25, 15] if shot == 'drive' else \
+                    [35, 15, 15, 20, 15] if shot == 'pull' else \
+                    [30, 5, 25, 30, 10] if shot == 'loft' else \
+                    [25, 5, 50, 15, 5]
+
+    def get_batting_outcome(self, ball_type, shot):
+        is_edge_case = random.random() < 0.05  # These are rare events that can happen
+
+        if is_edge_case:
+            return random.choice(['wicket', 'no-ball', 'wide'])
+
+        if (ball_type == 'yorker' and shot == 'pull') or \
+        (ball_type == 'bouncer' and shot == 'drive') or \
+        (ball_type == 'spin' and shot == 'pull') or \
+        (ball_type == 'fast' and shot == 'loft'):
+            return 'wicket'
+        #Basically makes sure that you play the right shot for the right ball. If you play a pull shot for a yorker of course you are going to get out
+
+        weights = self.get_dynamic_weights(shot, batting=True) 
+        return random.choices(['runs', 'wicket', 'dot', 'boundary', 'six'], weights=weights)[0] #Chooses the outcome of the ball based on the weights. Factors that influence this is the powerplay and the shot played
+
+
+            
+    def simulate_bowling_over(self):
+        for _ in range(6): #Loops through the over
+            while True:
+                field = input("\nChoose your field placement (aggressive, balanced, defensive): ").lower().strip()
+                if field in ['aggressive', 'balanced', 'defensive']:
+                    break
+                print("Invalid input, please choose 'aggressive', 'balanced', or 'defensive'.")
+            bowler_type = input("\nChange bowler? (same/fast/spinner): ").lower().strip()
+            if bowler_type in ['fast', 'spinner']:
+                self.current_bowler = 'Fast Bowler' if bowler_type == 'fast' else 'Spinner'
+            outcome = self.get_bowling_outcome(field)
+            self.process_bowling_outcome(outcome, field) 
+
+
     #def play(self):
         #self.start_game()
         #self.display_result()
