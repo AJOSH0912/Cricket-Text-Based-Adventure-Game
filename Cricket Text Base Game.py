@@ -124,14 +124,14 @@ class CricketGame:
         print(f"\nEnd of over {self.overs_played}/{self.max_overs}.")
         print(f"Score: {'Your Team' if batting else 'Opponent'} {self.player_team_score if batting else self.opponent_team_score}/{self.player_wickets if batting else self.opponent_wickets}")
 
-        def simulate_batting_over(self): #Simulates the batting over
-            for _ in range(6):
-                ball_type = random.choice(['fast', 'spin', 'bouncer', 'yorker']) #Randomly chooses the ball type
-                print(f"\nBall is a {ball_type}.") 
-                while True:
-                    shot = input("Choose your shot (defend, drive, pull, loft): ").lower().strip()
-                    if shot in ['defend', 'drive', 'pull', 'loft']:
-                        break
+    def simulate_batting_over(self): #Simulates the batting over
+        for _ in range(6):
+            ball_type = random.choice(['fast', 'spin', 'bouncer', 'yorker']) #Randomly chooses the ball type
+            print(f"\nBall is a {ball_type}.") 
+            while True:
+                shot = input("Choose your shot (defend, drive, pull, loft): ").lower().strip()
+                if shot in ['defend', 'drive', 'pull', 'loft']:
+                    break
                 print("Invalid input, please choose 'defend', 'drive', 'pull', or 'loft'.")
             outcome = self.get_batting_outcome(ball_type, shot) #Gets the outcome of the ball
             self.process_batting_outcome(outcome, shot) 
@@ -265,10 +265,50 @@ class CricketGame:
             print("No runs conceded.")
             self.commentary.append(f"{opponent} plays a dot ball.")
 
+    def display_result(self): #To displaye the reults
+        print("\n--- Match Result ---")
+        if self.player_batting:
+            if self.player_team_score > self.opponent_team_score:
+                print("Congratulations! Your team won the match!")
+            elif self.player_team_score < self.opponent_team_score:
+                print("Unfortunately, your team lost the match.")
+            else:
+                print("The match ended in a tie!")
+        else:
+            if self.opponent_team_score > self.player_team_score:
+                print("Unfortunately, your team lost the match.")
+            elif self.opponent_team_score < self.player_team_score:
+                print("Congratulations! Your team won the match!")
+            else:
+                print("The match ended in a tie!")
 
-    #def play(self):
-        #self.start_game()
-        #self.display_result()
+        self.post_match_analysis()
 
-#game = CricketGame()
-#game.play()
+    def post_match_analysis(self): #Tells you all the stats
+        print("\n--- Post-Match Analysis ---")
+        print(f"Your team scored {self.player_team_score} runs with {self.player_wickets} wickets down.")
+        print(f"Opponent scored {self.opponent_team_score} runs with {self.opponent_wickets} wickets down.")
+        print("\n--- Individual Scores ---")
+        print("Your team:")
+        for player, score in self.player_scores.items():
+            print(f"{player}: {score} runs")
+        print("Opponent team:")
+        for player, score in self.opponent_scores.items():
+            print(f"{player}: {score} runs")
+        print("\nKey Performers")
+        if self.player_strength == 'batting':
+            top_scorer = max(self.player_scores, key=self.player_scores.get) #Varuable for the top scorer
+            print(f"Top Scorer: {top_scorer} with {self.player_scores[top_scorer]} runs.")
+        else:
+            top_bowler = self.current_bowler #Variable for top bowler
+            print(f"Top Bowler: Your {top_bowler} with {self.opponent_wickets} wickets.")
+        for comment in self.commentary:
+            print(comment)
+        print("Thanks for playing! Analyze your decisions and strategies to improve next time.")
+
+    def play(self): 
+        self.start_game()
+        self.display_result()
+
+game = CricketGame()
+game.play()
